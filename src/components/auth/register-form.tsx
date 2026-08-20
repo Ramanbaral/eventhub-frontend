@@ -47,7 +47,7 @@ export function RegisterForm() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+    <main className="bg-background flex min-h-screen items-center justify-center px-4 py-10">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="gap-2 text-center">
           <CardTitle className="text-2xl">Create your account</CardTitle>
@@ -145,8 +145,8 @@ export function RegisterForm() {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="justify-center border-1 border-black/10 bg-background">
-          <p className="text-center text-sm text-muted-foreground">
+        <CardFooter className="bg-background justify-center border-1 border-black/10">
+          <p className="text-muted-foreground text-center text-sm">
             Already have an account?{" "}
             <Link
               className="font-medium text-blue-500 underline-offset-4 hover:underline"

@@ -1,0 +1,25 @@
+# Dependencies & Build Outputs
+node_modules
+dist
+build
+.next
+.output
+
+# TanStack Router generated tree
+src/routeTree.gen.ts
+
+# Package lock files & caches
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+.pnpm-store
+
+# Environment files & logs
+.env
+.env.*
+*.log
+
+# Git & IDE configs
+.git
+.vscode
+.idea
