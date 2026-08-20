@@ -54,7 +54,7 @@ export function LoginForm() {
             <Button className="w-full" type="submit" disabled={form.formState.isSubmitting}>Log In</Button>
           </form>
         </CardContent>
-        <CardFooter className="flex-col gap-4 border-0">
+        <CardFooter className="flex-col gap-4 border-0 bg-background">
           <div className="flex w-full items-center gap-3">
             <Separator className="flex-1" />
             <span className="text-xs text-muted-foreground">OR</span>
