@@ -26,7 +26,7 @@ export default function Navbar({
   const initial = userName.charAt(0).toUpperCase();
 
   return (
-    <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b shadow-sm backdrop-blur">
+    <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-border/5 sticky top-0 z-50 w-full border-b shadow-lg backdrop-blur">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
