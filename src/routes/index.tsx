@@ -1,3 +1,4 @@
+import EventCard from "@/components/events/EventCard";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
@@ -7,7 +8,13 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <div className="p-2">
-      <h3 className="text-red-400">Welcome Home!</h3>
+      <EventCard
+        eventName="Test Event"
+        description="This is a test event."
+        location="Kathmandu"
+        date="Fri, Aug 21, 2026 • 5:30 PM"
+        tags={["test", "event"]}
+      />
     </div>
   );
 }

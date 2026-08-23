@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "@tanstack/react-router";
 import { Calendar, Plus, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,23 +28,16 @@ export default function Navbar({
   return (
     <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b shadow-sm backdrop-blur">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-        {/* Left Section (Logo) */}
         <div className="flex items-center gap-3">
-          {/* Beautification: Added gradient and slight shadow to the logo icon */}
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
             <Calendar className="h-5 w-5" />
           </div>
           <span className="text-foreground text-xl font-extrabold tracking-tight">
-            Eventide
+            <Link to="/">Eventide</Link>
           </span>
         </div>
 
-        {/* Middle Section (Navigation) */}
         <div className="hidden items-center gap-1 md:flex">
-          {/* 
-            TanStack Router uses the 'to' prop. 
-            Update these to match your actual route paths! 
-          */}
           <Link
             to="/upcoming"
             className="text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-4 py-2 text-sm font-medium transition-all duration-200"
@@ -78,7 +70,6 @@ export default function Navbar({
           </Link>
         </div>
 
-        {/* Right Section (Authentication & Actions) */}
         <div className="flex items-center gap-4">
           {!isLoggedIn ? (
             <Button
@@ -89,13 +80,11 @@ export default function Navbar({
             </Button>
           ) : (
             <>
-              {/* Create Event Button */}
               <Button className="hidden rounded-full bg-blue-600 px-5 text-white transition-all hover:bg-blue-700 hover:shadow-md active:scale-95 sm:flex">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Event
               </Button>
 
-              {/* Mobile Create Event */}
               <Button
                 size="icon"
                 className="flex rounded-full bg-blue-600 text-white transition-all hover:bg-blue-700 hover:shadow-md active:scale-95 sm:hidden"
@@ -103,7 +92,6 @@ export default function Navbar({
                 <Plus className="h-5 w-5" />
               </Button>
 
-              {/* Profile Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
