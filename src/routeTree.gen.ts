@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MyEventsRouteImport } from './routes/my-events'
 import { Route as PastRouteImport } from './routes/past'
 import { Route as UpcomingRouteImport } from './routes/upcoming'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
@@ -20,6 +21,11 @@ import { Route as EventCreateRouteImport } from './routes/event/create'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyEventsRoute = MyEventsRouteImport.update({
+  id: '/my-events',
+  path: '/my-events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PastRoute = PastRouteImport.update({
@@ -55,6 +61,7 @@ const EventCreateRoute = EventCreateRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/my-events': typeof MyEventsRoute
   '/past': typeof PastRoute
   '/upcoming': typeof UpcomingRoute
   '/login': typeof AuthLoginRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/my-events': typeof MyEventsRoute
   '/past': typeof PastRoute
   '/upcoming': typeof UpcomingRoute
   '/login': typeof AuthLoginRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/my-events': typeof MyEventsRoute
   '/past': typeof PastRoute
   '/upcoming': typeof UpcomingRoute
   '/_auth/login': typeof AuthLoginRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/my-events'
     | '/past'
     | '/upcoming'
     | '/login'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/my-events'
     | '/past'
     | '/upcoming'
     | '/login'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/my-events'
     | '/past'
     | '/upcoming'
     | '/_auth/login'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MyEventsRoute: typeof MyEventsRoute
   PastRoute: typeof PastRoute
   UpcomingRoute: typeof UpcomingRoute
   AuthLoginRoute: typeof AuthLoginRoute
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-events': {
+      id: '/my-events'
+      path: '/my-events'
+      fullPath: '/my-events'
+      preLoaderRoute: typeof MyEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/past': {
@@ -177,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MyEventsRoute: MyEventsRoute,
   PastRoute: PastRoute,
   UpcomingRoute: UpcomingRoute,
   AuthLoginRoute: AuthLoginRoute,

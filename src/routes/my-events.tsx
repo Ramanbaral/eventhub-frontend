@@ -13,40 +13,24 @@ import FilterBox from "@/components/events/EventFilter";
 import EmptyState from "@/components/events/EmptyState";
 import EventGrid from "@/components/events/EventGrid";
 
-export const Route = createFileRoute("/")({
-  component: IndexPage,
+export const Route = createFileRoute("/my-events")({
+  component: MyEventsPage,
 });
 
 // MOCK DATA for EventGrid
 const mockEvents = [
   {
     id: 1,
-    eventName: "Annual Tech Conference 2026",
+    eventName: "My Team Planning Session",
     description:
-      "Join us for the biggest tech conference of the year featuring keynotes from industry leaders.",
-    date: "Aug 28, 2026",
-    location: "San Francisco, CA",
-    visibility: "Public",
+      "A strategic planning session with the core team to discuss Q4 goals.",
+    date: "Oct 15, 2026",
+    location: "Virtual",
+    visibility: "Private",
   },
-  // {
-  //   id: 2,
-  //   title: 'Internal Team Offsite',
-  //   description: 'Quarterly planning and team building activities.',
-  //   date: 'Sep 05, 2026',
-  //   location: 'Lake Tahoe, NV',
-  //   visibility: 'Private',
-  // },
-  // {
-  //   id: 3,
-  //   title: 'Product Launch Party',
-  //   description: 'Celebrating the launch of our new flagship product with partners and early adopters.',
-  //   date: 'Sep 12, 2026',
-  //   location: 'New York, NY',
-  //   visibility: 'Public',
-  // }
 ];
 
-function IndexPage() {
+function MyEventsPage() {
   const [events, setEvents] = useState(mockEvents);
   const [searchQuery, setSearchQuery] = useState("");
   const [visibility, setVisibility] = useState("all");
@@ -57,10 +41,10 @@ function IndexPage() {
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-            Upcoming Events
+            My Events
           </h1>
           <p className="mt-1 text-sm text-slate-500 sm:text-base">
-            Events happening soon — don't miss out
+            Events you have created or registered for
           </p>
         </div>
       </div>
@@ -81,8 +65,8 @@ function IndexPage() {
       {/* Content Area */}
       {events.length === 0 ? (
         <EmptyState
-          title="No upcoming events"
-          description="There are no upcoming events matching your filters."
+          title="No events found"
+          description="You haven't created or joined any events yet."
         />
       ) : (
         <div className="space-y-8">
