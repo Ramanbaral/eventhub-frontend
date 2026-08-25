@@ -88,9 +88,9 @@ export function LoginForm() {
         </CardContent>
         <CardFooter className="bg-background flex-col gap-4 border-0">
           <div className="flex w-full items-center gap-3">
-            <Separator className="flex-1" />
+            <Separator className="bg-foreground/20 flex-1" />
             <span className="text-muted-foreground text-xs">OR</span>
-            <Separator className="flex-1" />
+            <Separator className="bg-foreground/20 flex-1" />
           </div>
           <p className="text-muted-foreground text-center text-sm">
             Don&apos;t have an account?{" "}

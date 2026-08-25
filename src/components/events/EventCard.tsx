@@ -13,6 +13,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EditEventModal from "./EditEventModal";
+import DeleteEventModal from "./DeleteEventModal";
 
 export interface EventCardProps {
   eventName: string;
@@ -36,6 +37,7 @@ export default function EventCard({
   creator = "You",
 }: EventCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   return (
     <>
@@ -65,6 +67,7 @@ export default function EventCard({
               size="icon"
               variant="secondary"
               className="text-muted-foreground h-8 w-8 rounded-full bg-white shadow-sm hover:bg-gray-50"
+              onClick={() => setIsDeleteOpen(true)}
             >
               <Trash2 className="h-4 w-4" />
               <span className="sr-only">Delete event</span>
@@ -126,6 +129,12 @@ export default function EventCard({
         open={isEditOpen}
         onOpenChange={setIsEditOpen}
         eventData={{ eventName, description, location, date, tags, isPublic }}
+      />
+      <DeleteEventModal
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        eventName={eventName}
+        onConfirm={() => console.log("Deleted", eventName)}
       />
     </>
   );
