@@ -49,7 +49,7 @@ export default function Navbar({
             Upcoming
           </Link>
           <Link
-            to="/past-events"
+            to="/past"
             className="text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-4 py-2 text-sm font-medium transition-all duration-200"
             activeProps={{
               className:
@@ -80,10 +80,12 @@ export default function Navbar({
             </Button>
           ) : (
             <>
-              <Button className="hidden rounded-full bg-blue-600 px-5 text-white transition-all hover:bg-blue-700 hover:shadow-md active:scale-95 sm:flex">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Event
-              </Button>
+              <Link to="/event/create">
+                <Button className="hidden rounded-lg bg-blue-600 px-5 text-white transition-all hover:bg-blue-700 hover:shadow-md active:scale-95 sm:flex">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Event
+                </Button>
+              </Link>
 
               <Button
                 size="icon"
