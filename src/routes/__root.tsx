@@ -10,13 +10,7 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <React.Fragment>
-      {/* <Navbar isLoggedIn={false} />
-       */}
-      <Navbar
-        isLoggedIn={true}
-        userName="Tyler"
-        userEmail="tyler@example.com"
-      />
+      <Navbar />
       <Outlet />
       <TanStackRouterDevtools position="bottom-right" />
     </React.Fragment>

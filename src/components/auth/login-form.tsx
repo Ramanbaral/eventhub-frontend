@@ -1,6 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useNavigate } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,22 +18,44 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/context/AuthContext";
 
 const loginSchema = z.object({
-  email: z.string().trim().email("Enter a valid email address."),
-  password: z.string().min(8, "Password must be at least 8 characters."),
+  email: z.string().trim().email("Enter a valid email address.").max(255),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters.")
+    .max(255),
 });
 
 type LoginValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
 
-  function onSubmit(values: LoginValues) {
-    console.log("Login submitted", values);
+  async function onSubmit(values: LoginValues) {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/users/login`,
+        values,
+        { withCredentials: true }
+      );
+      login(res.data);
+      toast.success("Login successful!");
+      form.reset();
+      navigate({ to: "/upcoming" });
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message || "Failed to log in.");
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
+    }
   }
 
   return (
@@ -82,7 +108,14 @@ export function LoginForm() {
               type="submit"
               disabled={form.formState.isSubmitting}
             >
-              Log In
+              {form.formState.isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Logging in...
+                </>
+              ) : (
+                "Log In"
+              )}
             </Button>
           </form>
         </CardContent>

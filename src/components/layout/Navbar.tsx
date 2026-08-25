@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Calendar, Plus, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -11,19 +11,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/context/AuthContext";
 
-interface NavbarProps {
-  isLoggedIn?: boolean;
-  userName?: string;
-  userEmail?: string;
-}
+export default function Navbar() {
+  const { isLoading, user, logout } = useAuth();
+  const navigate = useNavigate();
 
-export default function Navbar({
-  isLoggedIn = false,
-  userName = "Tom",
-  userEmail = "tom@example.com",
-}: NavbarProps) {
-  const initial = userName.charAt(0).toUpperCase();
+  const handleLogout = async () => {
+    await logout();
+    navigate({ to: "/login" });
+  };
+
+  const initial = user?.name?.charAt(0).toUpperCase() || "?";
 
   return (
     <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-border/5 sticky top-0 z-50 w-full border-b shadow-lg backdrop-blur">
@@ -71,13 +70,17 @@ export default function Navbar({
         </div>
 
         <div className="flex items-center gap-4">
-          {!isLoggedIn ? (
-            <Button
-              variant="default"
-              className="rounded-full px-6 transition-transform active:scale-95"
-            >
-              Login
-            </Button>
+          {isLoading ? (
+            <div className="bg-muted h-10 w-20 animate-pulse rounded-full"></div>
+          ) : !user ? (
+            <Link to="/login">
+              <Button
+                variant="default"
+                className="rounded-lg px-6 transition-transform active:scale-95"
+              >
+                Login
+              </Button>
+            </Link>
           ) : (
             <>
               <Link to="/event/create">
@@ -116,15 +119,18 @@ export default function Navbar({
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1 p-1">
                         <p className="text-sm leading-none font-semibold">
-                          {userName}
+                          {user.name}
                         </p>
                         <p className="text-muted-foreground text-xs leading-none">
-                          {userEmail}
+                          {user.email}
                         </p>
                       </div>
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator className="my-1" />
-                    <DropdownMenuItem className="cursor-pointer rounded-lg p-2 text-red-600 transition-colors focus:bg-red-50 focus:text-red-700">
+                    <DropdownMenuSeparator className="bg-foreground/10 my-1" />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="cursor-pointer rounded-lg p-2 text-red-600 transition-colors focus:bg-red-50 focus:text-red-700"
+                    >
                       <LogOut className="mr-2 h-4 w-4" />
                       <span className="font-medium">Sign Out</span>
                     </DropdownMenuItem>

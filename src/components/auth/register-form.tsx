@@ -1,7 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,9 +26,20 @@ import { Input } from "@/components/ui/input";
 
 const registerSchema = z
   .object({
-    name: z.string().trim().min(2, "Name must be at least 2 characters."),
-    email: z.string().trim().email("Enter a valid email address."),
-    password: z.string().min(8, "Password must be at least 8 characters."),
+    name: z
+      .string()
+      .trim()
+      .min(2, "Name must be at least 2 characters.")
+      .max(100, "Name must not exceed 100 characters."),
+    email: z
+      .string()
+      .trim()
+      .email("Enter a valid email address.")
+      .max(255, "Email must not exceed 255 characters."),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters.")
+      .max(255, "Password must not exceed 255 characters."),
     confirmPassword: z.string().min(1, "Please confirm your password."),
   })
   .refine((values) => values.password === values.confirmPassword, {
@@ -37,13 +50,35 @@ const registerSchema = z
 type RegisterValues = z.infer<typeof registerSchema>;
 
 export function RegisterForm() {
+  const navigate = useNavigate();
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
 
-  function onSubmit(values: RegisterValues) {
-    console.log("Registration submitted", values);
+  async function onSubmit(values: RegisterValues) {
+    try {
+      const promise = axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/users/register`,
+        {
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        }
+      );
+
+      await toast.promise(promise, {
+        loading: "Creating account...",
+        success: "Account created successfully!",
+        error: (err) =>
+          err.response?.data?.message || "Failed to create account",
+      });
+
+      form.reset();
+      navigate({ to: "/login" });
+    } catch (error) {
+      console.error("Registration error:", error);
+    }
   }
 
   return (
