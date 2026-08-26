@@ -14,57 +14,130 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useAuth } from "@/context/AuthContext";
+import { format, formatDistanceToNow } from "date-fns";
+import toast from "react-hot-toast";
+import DeleteEventModal from "@/components/events/DeleteEventModal";
+import EditEventModal from "@/components/events/EditEventModal";
 
-export interface EventDetailPageProps {
-  // Hero Data
-  title?: string;
-  timeAgo?: string;
-  isPublic?: boolean;
-
-  // Date & Time Data
-  startDate?: string;
-  startTime?: string;
-  endDate?: string;
-  endTime?: string;
-
-  // Content Data
-  description?: string;
-  location?: string;
-  tags?: string[];
-
-  // User/Context Data
-  isCreator?: boolean;
-
-  // Actions
-  onBack?: () => void;
-  onShare?: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
+export interface Event {
+  id: number;
+  title: string;
+  description: string;
+  event_start_date: string | Date;
+  event_end_date: string | Date;
+  location: string;
+  event_type: "public" | "private";
+  created_by: number;
+  created_at: string | Date;
+  updated_at: string | Date;
 }
 
 export const Route = createFileRoute("/event/$eventId")({
   component: EventDetailPage,
 });
 
-export default function EventDetailPage({
-  title = "test event",
-  timeAgo = "2 days ago",
-  isPublic = true,
-  startDate = "Fri, Aug 21, 2026",
-  startTime = "Starts at 5:30 PM",
-  endDate = "Fri, Aug 21, 2026",
-  endTime = "Ends at 8:30 PM",
-  description = "test test test test test",
-  location = "kathmandu",
-  tags = ["test", "new"],
-  isCreator = true,
-  onBack,
-  onShare,
-  onEdit,
-  onDelete,
-}: EventDetailPageProps) {
+export default function EventDetailPage() {
   const { eventId } = Route.useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const [event, setEvent] = useState<Event | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        setIsLoading(true);
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/events/${eventId}`,
+          {
+            withCredentials: true,
+          }
+        );
+        setEvent(res.data);
+      } catch (error: any) {
+        if (error.response?.status === 404) {
+          navigate({ to: "/404" as any });
+        } else {
+          console.error("Failed to fetch event:", error);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (eventId) {
+      fetchEvent();
+    }
+  }, [eventId, navigate]);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const onBack = () => navigate({ to: "/" });
+  const onShare = () => {
+    /* implement share */
+  };
+  const onEdit = () => setIsEditModalOpen(true);
+  const onDelete = () => setIsDeleteModalOpen(true);
+
+  const onDeleteConfirm = async () => {
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/events/${eventId}`,
+        {
+          withCredentials: true,
+        }
+      );
+      toast.success("Event deleted successfully");
+      navigate({ to: "/" });
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete event");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen animate-pulse bg-[#f8fafc] p-4 font-sans text-slate-900 md:p-8 lg:px-12">
+        <div className="mx-auto max-w-6xl space-y-6">
+          <div className="h-10 w-32 rounded-md bg-slate-200/60"></div>
+          <div className="h-[320px] w-full rounded-[2rem] bg-slate-200/60"></div>
+          <div className="mt-4 h-12 w-full rounded-md bg-slate-200/60"></div>
+          <div className="grid grid-cols-1 gap-6 pt-2 lg:grid-cols-3">
+            <div className="space-y-6 lg:col-span-2">
+              <div className="h-48 rounded-2xl bg-slate-200/60"></div>
+              <div className="h-48 rounded-2xl bg-slate-200/60"></div>
+            </div>
+            <div className="space-y-6">
+              <div className="h-32 rounded-2xl bg-slate-200/60"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!event) return null;
+
+  const isCreator = user?.id === String(event.created_by);
+  const isPublic = event.event_type === "public";
+
+  const timeAgo = formatDistanceToNow(new Date(event.created_at), {
+    addSuffix: true,
+  });
+  const startDate = format(
+    new Date(event.event_start_date),
+    "EEE, MMM d, yyyy"
+  );
+  const startTime = `Starts at ${format(new Date(event.event_start_date), "h:mm a")}`;
+  const endDate = format(new Date(event.event_end_date), "EEE, MMM d, yyyy");
+  const endTime = `Ends at ${format(new Date(event.event_end_date), "h:mm a")}`;
+
+  const tags: string[] = (event as any).tags || [];
 
   return (
     <div className="min-h-screen bg-[#f8fafc] p-4 font-sans text-slate-900 md:p-8 lg:px-12">
@@ -102,7 +175,7 @@ export default function EventDetailPage({
               {timeAgo}
             </div>
             <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-              {title}
+              {event.title}
             </h1>
           </div>
         </div>
@@ -117,23 +190,27 @@ export default function EventDetailPage({
               <Share className="mr-2 h-4 w-4 text-slate-500" />
               Share
             </Button>
-            <Button
-              variant="outline"
-              className="border-border/10 rounded-full px-5 shadow-sm"
-              onClick={onEdit}
-            >
-              <Pencil className="mr-2 h-4 w-4 text-slate-500" />
-              Edit
-            </Button>
+            {isCreator && (
+              <>
+                <Button
+                  variant="outline"
+                  className="border-border/10 rounded-full px-5 shadow-sm"
+                  onClick={onEdit}
+                >
+                  <Pencil className="mr-2 h-4 w-4 text-slate-500" />
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  className="rounded-full border-red-200 px-5 text-red-600 shadow-sm hover:bg-red-50 hover:text-red-700"
+                  onClick={onDelete}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </Button>
+              </>
+            )}
             {/* TODO: Add a Add to Calendar button here  */}
-            <Button
-              variant="outline"
-              className="rounded-full border-red-200 px-5 text-red-600 shadow-sm hover:bg-red-50 hover:text-red-700"
-              onClick={onDelete}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </Button>
           </div>
 
           {isCreator && (
@@ -186,7 +263,7 @@ export default function EventDetailPage({
               </CardHeader>
               <CardContent>
                 <p className="leading-relaxed whitespace-pre-wrap text-slate-700">
-                  {description}
+                  {event.description}
                 </p>
               </CardContent>
             </Card>
@@ -206,7 +283,7 @@ export default function EventDetailPage({
                     <MapPin className="h-5 w-5 text-blue-500" />
                   </div>
                   <p className="font-medium text-slate-900 capitalize">
-                    {location}
+                    {event.location}
                   </p>
                 </div>
               </CardContent>
@@ -239,6 +316,37 @@ export default function EventDetailPage({
           </div>
         </div>
       </div>
+
+      {isEditModalOpen && (
+        <EditEventModal
+          open={isEditModalOpen}
+          onOpenChange={setIsEditModalOpen}
+          eventData={{
+            eventName: event.title,
+            description: event.description,
+            location: event.location,
+            isPublic: event.event_type === "public",
+            startsAt: format(
+              new Date(event.event_start_date),
+              "yyyy-MM-dd'T'HH:mm"
+            ),
+            endsAt: format(
+              new Date(event.event_end_date),
+              "yyyy-MM-dd'T'HH:mm"
+            ),
+            tags: (event as any).tags || [],
+          }}
+        />
+      )}
+
+      {isDeleteModalOpen && (
+        <DeleteEventModal
+          open={isDeleteModalOpen}
+          onOpenChange={setIsDeleteModalOpen}
+          eventName={event.title}
+          onConfirm={onDeleteConfirm}
+        />
+      )}
     </div>
   );
 }

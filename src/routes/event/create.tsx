@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Calendar,
@@ -9,10 +9,13 @@ import {
   MapPin,
   Plus,
   Tag,
+  Loader2,
 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,15 +30,27 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const eventSchema = z.object({
-  title: z.string().trim().min(1, "Event title is required."),
-  description: z.string().min(1, "Event description is required."),
-  location: z.string().min(1, "Event location is required."),
-  startsAt: z.string().min(1, "Start date and time is required."),
-  endsAt: z.string().optional(),
-  visibility: z.enum(["private", "public"]).default("private"),
-  tags: z.array(z.string()),
-});
+const eventSchema = z
+  .object({
+    title: z
+      .string()
+      .trim()
+      .min(1, "Event title is required.")
+      .max(150, "Title cannot exceed 150 characters"),
+    description: z.string().min(1, "Event description is required."),
+    location: z
+      .string()
+      .min(1, "Event location is required.")
+      .max(255, "Location cannot exceed 255 characters"),
+    startsAt: z.string().min(1, "Start date and time is required."),
+    endsAt: z.string().min(1, "End date and time is required."),
+    visibility: z.enum(["private", "public"]).default("private"),
+    tags: z.array(z.string()),
+  })
+  .refine((data) => new Date(data.endsAt) >= new Date(data.startsAt), {
+    message: "Event end date cannot be earlier than the start date",
+    path: ["endsAt"],
+  });
 
 type EventFormValues = z.input<typeof eventSchema>;
 type EventValues = z.output<typeof eventSchema>;
@@ -45,6 +60,7 @@ export const Route = createFileRoute("/event/create")({
 });
 
 function CreateEvent() {
+  const navigate = useNavigate();
   const [tagInput, setTagInput] = useState("");
   const form = useForm<EventFormValues, unknown, EventValues>({
     resolver: zodResolver(eventSchema),
@@ -68,8 +84,33 @@ function CreateEvent() {
     setTagInput("");
   }
 
-  function onSubmit(values: EventValues) {
-    console.log("Event submitted", values);
+  async function onSubmit(values: EventValues) {
+    try {
+      const payload = {
+        title: values.title,
+        description: values.description,
+        location: values.location,
+        event_start_date: values.startsAt,
+        event_end_date: values.endsAt,
+        event_type: values.visibility,
+        tags: values.tags,
+      };
+
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/events`, payload, {
+        withCredentials: true,
+      });
+
+      toast.success("Event created successfully!");
+      form.reset();
+      navigate({ to: "/" });
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message || "Failed to create event.");
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
+      console.error("Event creation error:", error);
+    }
   }
 
   return (
@@ -313,10 +354,17 @@ function CreateEvent() {
                   </Link>
                   <Button
                     type="submit"
-                    className="min-h-12 w-full rounded-lg p-4 text-base"
+                    className="flex min-h-12 w-full items-center justify-center rounded-lg p-4 text-base"
                     disabled={form.formState.isSubmitting}
                   >
-                    Create Event
+                    {form.formState.isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      "Create Event"
+                    )}
                   </Button>
                 </CardFooter>
               </form>
