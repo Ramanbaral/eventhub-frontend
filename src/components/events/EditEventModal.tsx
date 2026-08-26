@@ -2,6 +2,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { Loader2 } from "lucide-react";
+import { useRouter, useParams } from "@tanstack/react-router";
 import {
   Dialog,
   DialogContent,
@@ -27,19 +31,41 @@ import {
   X,
 } from "lucide-react";
 
-const eventSchema = z.object({
-  title: z.string().min(1, "Event Title is required"),
-  description: z.string().optional(),
-  location: z.string().optional(),
-  startsAt: z.string().min(1, "Start time is required"),
-  endsAt: z.string().optional(),
-  visibility: z.enum(["private", "public"]),
-  tags: z.array(z.string()),
-});
+const eventSchema = z
+  .object({
+    title: z
+      .string()
+      .min(1, "Event Title is required")
+      .max(150, "Title cannot exceed 150 characters"),
+    description: z.string().min(1, "Description is required"),
+    location: z
+      .string()
+      .min(1, "Location is required")
+      .max(255, "Location cannot exceed 255 characters"),
+    startsAt: z.string().min(1, "Start time is required"),
+    endsAt: z.string().min(1, "End time is required"),
+    visibility: z.enum(["private", "public"]),
+    tags: z.array(z.string()),
+  })
+  .refine(
+    (data) => {
+      if (data.startsAt && data.endsAt) {
+        return new Date(data.endsAt) >= new Date(data.startsAt);
+      }
+      return true;
+    },
+    {
+      message: "Event end date cannot be earlier than the start date",
+      path: ["endsAt"],
+    }
+  );
 
 type EventFormValues = z.infer<typeof eventSchema>;
 
 export default function EditEventModal({ open, onOpenChange, eventData }: any) {
+  const router = useRouter();
+  const { eventId } = useParams({ strict: false });
+
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -57,16 +83,52 @@ export default function EditEventModal({ open, onOpenChange, eventData }: any) {
     handleSubmit,
     watch,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = form;
   const visibility = watch("visibility");
   const tags = watch("tags");
 
   const [tagInput, setTagInput] = useState("");
 
-  const onSubmit = (data: EventFormValues) => {
-    console.log("Submitted Data:", data);
-    onOpenChange(false);
+  const onSubmit = async (data: EventFormValues) => {
+    try {
+      const initialTags = eventData?.tags || [];
+      const currentTags = data.tags;
+
+      const add_tags = currentTags.filter(
+        (tag: string) => !initialTags.includes(tag)
+      );
+      const remove_tags = initialTags.filter(
+        (tag: string) => !currentTags.includes(tag)
+      );
+
+      const payload: any = {
+        title: data.title,
+        description: data.description,
+        location: data.location,
+        event_start_date: data.startsAt,
+        event_end_date: data.endsAt,
+        event_type: data.visibility,
+      };
+
+      if (add_tags.length > 0) payload.add_tags = add_tags;
+      if (remove_tags.length > 0) payload.remove_tags = remove_tags;
+
+      await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/events/${eventId}`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
+
+      toast.success("Event updated successfully!");
+      onOpenChange(false);
+      router.invalidate();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update event");
+    }
   };
 
   const addTag = () => {
@@ -310,9 +372,17 @@ export default function EditEventModal({ open, onOpenChange, eventData }: any) {
           <Button
             type="button"
             onClick={handleSubmit(onSubmit)}
+            disabled={isSubmitting}
             className="h-11 w-full rounded-xl bg-[#1a73e8] font-medium text-white shadow-sm hover:bg-blue-700 sm:w-1/2"
           >
-            Save Changes
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save Changes"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

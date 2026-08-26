@@ -46,31 +46,38 @@ export default function EventDetailPage() {
   const { user } = useAuth();
 
   const [event, setEvent] = useState<Event | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEvent = async () => {
+    const fetchEventData = async () => {
       try {
         setIsLoading(true);
-        const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/events/${eventId}`,
-          {
+        const [eventRes, tagsRes] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_BACKEND_URL}/events/${eventId}`, {
             withCredentials: true,
-          }
-        );
-        setEvent(res.data);
+          }),
+          axios.get(
+            `${import.meta.env.VITE_BACKEND_URL}/events/tags/${eventId}`,
+            {
+              withCredentials: true,
+            }
+          ),
+        ]);
+        setEvent(eventRes.data);
+        setTags(tagsRes.data);
       } catch (error: any) {
         if (error.response?.status === 404) {
           navigate({ to: "/404" as any });
         } else {
-          console.error("Failed to fetch event:", error);
+          console.error("Failed to fetch event data:", error);
         }
       } finally {
         setIsLoading(false);
       }
     };
     if (eventId) {
-      fetchEvent();
+      fetchEventData();
     }
   }, [eventId, navigate]);
 
@@ -136,8 +143,6 @@ export default function EventDetailPage() {
   const startTime = `Starts at ${format(new Date(event.event_start_date), "h:mm a")}`;
   const endDate = format(new Date(event.event_end_date), "EEE, MMM d, yyyy");
   const endTime = `Ends at ${format(new Date(event.event_end_date), "h:mm a")}`;
-
-  const tags: string[] = (event as any).tags || [];
 
   return (
     <div className="min-h-screen bg-[#f8fafc] p-4 font-sans text-slate-900 md:p-8 lg:px-12">
@@ -334,7 +339,7 @@ export default function EventDetailPage() {
               new Date(event.event_end_date),
               "yyyy-MM-dd'T'HH:mm"
             ),
-            tags: (event as any).tags || [],
+            tags: tags,
           }}
         />
       )}
