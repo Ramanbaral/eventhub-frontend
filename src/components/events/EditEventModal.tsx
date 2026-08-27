@@ -64,7 +64,8 @@ type EventFormValues = z.infer<typeof eventSchema>;
 
 export default function EditEventModal({ open, onOpenChange, eventData }: any) {
   const router = useRouter();
-  const { eventId } = useParams({ strict: false });
+  const params = useParams({ strict: false });
+  const eventId = params.eventId || eventData?.eventId;
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),

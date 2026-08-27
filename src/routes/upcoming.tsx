@@ -69,6 +69,11 @@ function UpcomingEventsPage() {
             new Date(evt.event_start_date),
             "EEE, MMM d, yyyy • h:mm a"
           ),
+          startsAt: format(
+            new Date(evt.event_start_date),
+            "yyyy-MM-dd'T'HH:mm"
+          ),
+          endsAt: format(new Date(evt.event_end_date), "yyyy-MM-dd'T'HH:mm"),
           location: evt.location,
           isPublic: evt.event_type === "public",
           tags: evt.tags || [],
@@ -76,6 +81,7 @@ function UpcomingEventsPage() {
             addSuffix: true,
           }),
           creator: "User",
+          created_by: evt.created_by,
         }));
         setEvents(mappedEvents);
         setPagination(res.data.pagination);

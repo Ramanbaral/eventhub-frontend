@@ -14,7 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EditEventModal from "./EditEventModal";
 import DeleteEventModal from "./DeleteEventModal";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
+import { useAuth } from "@/context/AuthContext";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 export interface EventCardProps {
   id?: number;
@@ -26,6 +29,9 @@ export interface EventCardProps {
   timeAgo?: string;
   isPublic?: boolean;
   creator?: string;
+  created_by?: number;
+  startsAt?: string;
+  endsAt?: string;
 }
 
 export default function EventCard({
@@ -38,10 +44,30 @@ export default function EventCard({
   timeAgo = "2 days ago",
   isPublic = true,
   creator = "You",
+  created_by,
+  startsAt,
+  endsAt,
 }: EventCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const navigate = useNavigate();
+  const router = useRouter();
+  const { user } = useAuth();
+
+  const isCreator = user?.id === String(created_by);
+
+  const onDeleteConfirm = async () => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/events/${id}`, {
+        withCredentials: true,
+      });
+      toast.success("Event deleted successfully");
+      router.invalidate();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete event");
+    }
+  };
 
   return (
     <>
@@ -50,7 +76,7 @@ export default function EventCard({
         onClick={() => navigate({ to: `/event/${id}` as any })}
       >
         <div className="relative flex h-48 w-full items-center justify-center bg-gradient-to-br from-[#2f8bf8] to-[#1e5eb0]">
-          {isPublic && (
+          {isPublic ? (
             <Badge
               variant="secondary"
               className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full border-none bg-white px-2.5 py-1 text-xs font-semibold text-[#1e8b4e] shadow-sm hover:bg-gray-50"
@@ -58,34 +84,44 @@ export default function EventCard({
               <Globe className="h-3.5 w-3.5" />
               Public
             </Badge>
+          ) : (
+            <Badge
+              variant="secondary"
+              className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full border-none bg-white px-2.5 py-1 text-xs font-semibold text-[#1e8b4e] shadow-sm hover:bg-gray-50"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              Private
+            </Badge>
           )}
 
-          <div className="absolute top-4 right-4 flex items-center gap-2">
-            <Button
-              size="icon"
-              variant="secondary"
-              className="text-muted-foreground h-8 w-8 rounded-full bg-white shadow-sm hover:bg-gray-50"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditOpen(true);
-              }}
-            >
-              <Pencil className="h-4 w-4" />
-              <span className="sr-only">Edit event</span>
-            </Button>
-            <Button
-              size="icon"
-              variant="secondary"
-              className="text-muted-foreground h-8 w-8 rounded-full bg-white shadow-sm hover:bg-gray-50"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsDeleteOpen(true);
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-              <span className="sr-only">Delete event</span>
-            </Button>
-          </div>
+          {isCreator && (
+            <div className="absolute top-4 right-4 flex items-center gap-2">
+              <Button
+                size="icon"
+                variant="secondary"
+                className="text-muted-foreground h-8 w-8 rounded-full bg-white shadow-sm hover:bg-gray-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditOpen(true);
+                }}
+              >
+                <Pencil className="h-4 w-4" />
+                <span className="sr-only">Edit event</span>
+              </Button>
+              <Button
+                size="icon"
+                variant="secondary"
+                className="text-muted-foreground h-8 w-8 rounded-full bg-white shadow-sm hover:bg-gray-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsDeleteOpen(true);
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Delete event</span>
+              </Button>
+            </div>
+          )}
 
           <CalendarIcon className="h-16 w-16 stroke-[1.5] text-white/70" />
         </div>
@@ -109,7 +145,9 @@ export default function EventCard({
           </div>
 
           {/* Description */}
-          <p className="text-muted-foreground mb-4 text-sm">{description}</p>
+          <p className="text-muted-foreground mb-4 line-clamp-2 text-sm">
+            {description}
+          </p>
 
           {/* Tags */}
           {tags && tags.length > 0 && (
@@ -118,7 +156,7 @@ export default function EventCard({
                 <Badge
                   key={index}
                   variant="secondary"
-                  className="bg-secondary/60 hover:bg-secondary/80 text-secondary-foreground rounded-full border-none px-3 py-1 text-xs font-medium shadow-none"
+                  className="bg-secondary/60 text-secondary-foreground hover:bg-secondary/80 rounded-full border-none px-3 py-1 text-xs font-medium shadow-none"
                 >
                   {tag}
                 </Badge>
@@ -127,27 +165,38 @@ export default function EventCard({
           )}
         </CardContent>
 
-        <CardFooter className="bg-card text-muted-foreground flex items-center justify-between border-t-gray-200 p-4">
+        <CardFooter className="text-muted-foreground bg-card flex items-center justify-between border-t border-gray-200 p-4">
           <div className="text-muted-foreground/80 text-xs font-medium">
             {date}
           </div>
 
-          <div className="flex cursor-pointer items-center gap-1.5 text-sm font-medium text-blue-500 hover:underline">
+          <div className="flex items-center gap-1.5 text-sm font-medium text-blue-500 hover:underline">
             <Users className="h-4 w-4" />
             <span>{creator}</span>
           </div>
         </CardFooter>
       </Card>
+
       <EditEventModal
         open={isEditOpen}
         onOpenChange={setIsEditOpen}
-        eventData={{ eventName, description, location, date, tags, isPublic }}
+        eventData={{
+          eventId: id,
+          eventName,
+          description,
+          location,
+          date,
+          tags,
+          isPublic,
+          startsAt,
+          endsAt,
+        }}
       />
       <DeleteEventModal
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
         eventName={eventName}
-        onConfirm={() => console.log("Deleted", eventName)}
+        onConfirm={onDeleteConfirm}
       />
     </>
   );
