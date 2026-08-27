@@ -1,10 +1,7 @@
-import { CalendarIcon, MapPin } from "lucide-react";
-import { Card, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
 import EventCard from "./EventCard";
+import type { EventCardProps } from "./EventCard";
 
-//use EventCard
-function EventGrid({ events }) {
+function EventGrid({ events }: { events: EventCardProps[] }) {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {events.map((evt) => (

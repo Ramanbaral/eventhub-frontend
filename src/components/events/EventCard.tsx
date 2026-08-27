@@ -14,8 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EditEventModal from "./EditEventModal";
 import DeleteEventModal from "./DeleteEventModal";
+import { useNavigate } from "@tanstack/react-router";
 
 export interface EventCardProps {
+  id?: number;
   eventName: string;
   description: string;
   location: string;
@@ -27,6 +29,7 @@ export interface EventCardProps {
 }
 
 export default function EventCard({
+  id = 1,
   eventName = "test event",
   description = "test test test test test",
   location = "kathmandu",
@@ -38,10 +41,14 @@ export default function EventCard({
 }: EventCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
-      <Card className="bg-card w-full max-w-sm overflow-hidden rounded-xl border border-gray-300 p-0 shadow-xl">
+      <Card
+        className="bg-card w-full max-w-sm cursor-pointer overflow-hidden rounded-xl border border-gray-300 p-0 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
+        onClick={() => navigate({ to: `/event/${id}` as any })}
+      >
         <div className="relative flex h-48 w-full items-center justify-center bg-gradient-to-br from-[#2f8bf8] to-[#1e5eb0]">
           {isPublic && (
             <Badge
@@ -58,7 +65,10 @@ export default function EventCard({
               size="icon"
               variant="secondary"
               className="text-muted-foreground h-8 w-8 rounded-full bg-white shadow-sm hover:bg-gray-50"
-              onClick={() => setIsEditOpen(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditOpen(true);
+              }}
             >
               <Pencil className="h-4 w-4" />
               <span className="sr-only">Edit event</span>
@@ -67,7 +77,10 @@ export default function EventCard({
               size="icon"
               variant="secondary"
               className="text-muted-foreground h-8 w-8 rounded-full bg-white shadow-sm hover:bg-gray-50"
-              onClick={() => setIsDeleteOpen(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDeleteOpen(true);
+              }}
             >
               <Trash2 className="h-4 w-4" />
               <span className="sr-only">Delete event</span>
