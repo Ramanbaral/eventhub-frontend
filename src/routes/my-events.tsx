@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { format, formatDistanceToNow } from "date-fns";
@@ -43,7 +43,8 @@ function EventCardSkeleton() {
 }
 
 function MyEventsPage() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
 
   const [events, setEvents] = useState<any[]>([]);
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
@@ -53,6 +54,12 @@ function MyEventsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [visibility, setVisibility] = useState("all");
   const [showFilters, setShowFilters] = useState(true);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate({ to: "/login" });
+    }
+  }, [authLoading, user, navigate]);
 
   useEffect(() => {
     const fetchMyEvents = async () => {
@@ -98,6 +105,16 @@ function MyEventsPage() {
 
     fetchMyEvents();
   }, [page, user?.id]);
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <div className="container mx-auto max-w-6xl space-y-8 p-4 font-sans md:p-8">

@@ -11,12 +11,13 @@ import {
   Tag,
   Loader2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+import { useAuth } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -61,6 +62,14 @@ export const Route = createFileRoute("/event/create")({
 
 function CreateEvent() {
   const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate({ to: "/login" });
+    }
+  }, [authLoading, user, navigate]);
+
   const [tagInput, setTagInput] = useState("");
   const form = useForm<EventFormValues, unknown, EventValues>({
     resolver: zodResolver(eventSchema),
@@ -112,6 +121,16 @@ function CreateEvent() {
       console.error("Event creation error:", error);
     }
   }
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-4 text-slate-950 md:px-8 md:py-8">
