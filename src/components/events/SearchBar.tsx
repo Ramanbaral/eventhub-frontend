@@ -2,12 +2,28 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+interface SearchBarProps {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  onSearch: () => void;
+  showFilters: boolean;
+  setShowFilters: (show: boolean) => void;
+}
+
 function SearchBar({
   searchQuery,
   setSearchQuery,
+  onSearch,
   showFilters,
   setShowFilters,
-}: any) {
+}: SearchBarProps) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      onSearch();
+    }
+  };
+
   return (
     <div className="flex w-full flex-col gap-3 sm:flex-row">
       <div className="relative flex-1">
@@ -15,10 +31,18 @@ function SearchBar({
         <Input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search events by title, description, or location..."
+          onKeyDown={handleKeyDown}
+          placeholder="Search events by title..."
           className="h-11 w-full rounded-xl border-slate-200 bg-white pl-10 text-base shadow-sm focus-visible:ring-1 focus-visible:ring-[#1a73e8]"
         />
       </div>
+      <Button
+        onClick={onSearch}
+        className="h-11 shrink-0 rounded-xl bg-[#1a73e8] px-6 font-medium text-white shadow-sm transition-colors hover:bg-[#1557b0]"
+      >
+        <Search className="mr-2 h-4 w-4" />
+        Search
+      </Button>
       <Button
         variant="secondary"
         onClick={() => setShowFilters(!showFilters)}

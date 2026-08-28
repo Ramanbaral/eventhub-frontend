@@ -50,11 +50,17 @@ function UpcomingEventsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
   const [visibility, setVisibility] = useState("all");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [showFilters, setShowFilters] = useState(true);
+
+  const handleSearch = () => {
+    setActiveSearch(searchQuery);
+    setPage(1);
+  };
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -66,6 +72,7 @@ function UpcomingEventsPage() {
       setIsLoading(true);
       try {
         const filters: EventFilterParams = {
+          search: activeSearch || undefined,
           event_type:
             visibility === "all"
               ? undefined
@@ -115,7 +122,7 @@ function UpcomingEventsPage() {
       }
     };
     fetchUpcomingEvents();
-  }, [page, visibility, selectedTags, dateFrom, dateTo]);
+  }, [page, visibility, selectedTags, dateFrom, dateTo, activeSearch]);
 
   return (
     <div className="container mx-auto max-w-6xl space-y-8 p-4 font-sans md:p-8">
@@ -135,6 +142,7 @@ function UpcomingEventsPage() {
         <SearchBar
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
+          onSearch={handleSearch}
           showFilters={showFilters}
           setShowFilters={setShowFilters}
         />

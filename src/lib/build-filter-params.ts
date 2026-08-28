@@ -8,6 +8,10 @@ import type { EventFilterParams } from "@/types/event-filter.type";
 export function buildFilterParams(filters: EventFilterParams): URLSearchParams {
   const params = new URLSearchParams();
 
+  if (filters.search) {
+    params.append("search", filters.search);
+  }
+
   if (filters.event_type) {
     params.append("event_type", filters.event_type);
   }

@@ -54,11 +54,17 @@ function MyEventsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
   const [visibility, setVisibility] = useState("all");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [showFilters, setShowFilters] = useState(true);
+
+  const handleSearch = () => {
+    setActiveSearch(searchQuery);
+    setPage(1);
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -77,6 +83,7 @@ function MyEventsPage() {
       setIsLoading(true);
       try {
         const filters: EventFilterParams = {
+          search: activeSearch || undefined,
           event_type:
             visibility === "all"
               ? undefined
@@ -127,7 +134,15 @@ function MyEventsPage() {
     };
 
     fetchMyEvents();
-  }, [page, user?.id, visibility, selectedTags, dateFrom, dateTo]);
+  }, [
+    page,
+    user?.id,
+    visibility,
+    selectedTags,
+    dateFrom,
+    dateTo,
+    activeSearch,
+  ]);
 
   if (authLoading) {
     return (
@@ -157,6 +172,7 @@ function MyEventsPage() {
         <SearchBar
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
+          onSearch={handleSearch}
           showFilters={showFilters}
           setShowFilters={setShowFilters}
         />
