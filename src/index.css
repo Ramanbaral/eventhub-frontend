@@ -178,3 +178,13 @@
     @apply font-sans;
   }
 }
+
+/* Hide scrollbar in react-datepicker time list */
+.react-datepicker__time-list {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.react-datepicker__time-list::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}

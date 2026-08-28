@@ -16,6 +16,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import axios from "axios";
 import toast from "react-hot-toast";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format, parse } from "date-fns";
 
 import { useAuth } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/badge";
@@ -231,11 +234,30 @@ function CreateEvent() {
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Calendar className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                            <Input
-                              className="pl-10"
-                              type="datetime-local"
-                              {...field}
+                            <Calendar className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2" />
+                            <DatePicker
+                              selected={
+                                field.value
+                                  ? parse(
+                                      field.value,
+                                      "yyyy-MM-dd'T'HH:mm",
+                                      new Date()
+                                    )
+                                  : null
+                              }
+                              onChange={(date: Date | null) => {
+                                field.onChange(
+                                  date ? format(date, "yyyy-MM-dd'T'HH:mm") : ""
+                                );
+                              }}
+                              showTimeSelect
+                              timeFormat="h:mm aa"
+                              timeIntervals={15}
+                              dateFormat="MMM d, yyyy h:mm aa"
+                              placeholderText="Select start date & time"
+                              className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-transparent py-1 pr-3 pl-10 text-sm outline-none focus-visible:ring-3"
+                              wrapperClassName="w-full"
+                              autoComplete="off"
                             />
                           </div>
                         </FormControl>
@@ -248,14 +270,44 @@ function CreateEvent() {
                     name="endsAt"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Ends At</FormLabel>
+                        <FormLabel>
+                          Ends At <span className="text-red-500">*</span>
+                        </FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Clock className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                            <Input
-                              className="pl-10"
-                              type="datetime-local"
-                              {...field}
+                            <Calendar className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2" />
+                            <DatePicker
+                              selected={
+                                field.value
+                                  ? parse(
+                                      field.value,
+                                      "yyyy-MM-dd'T'HH:mm",
+                                      new Date()
+                                    )
+                                  : null
+                              }
+                              onChange={(date: Date | null) => {
+                                field.onChange(
+                                  date ? format(date, "yyyy-MM-dd'T'HH:mm") : ""
+                                );
+                              }}
+                              showTimeSelect
+                              timeFormat="h:mm aa"
+                              timeIntervals={15}
+                              dateFormat="MMM d, yyyy h:mm aa"
+                              placeholderText="Select end date & time"
+                              className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-transparent py-1 pr-3 pl-10 text-sm outline-none focus-visible:ring-3"
+                              wrapperClassName="w-full"
+                              autoComplete="off"
+                              minDate={
+                                form.getValues("startsAt")
+                                  ? parse(
+                                      form.getValues("startsAt"),
+                                      "yyyy-MM-dd'T'HH:mm",
+                                      new Date()
+                                    )
+                                  : undefined
+                              }
                             />
                           </div>
                         </FormControl>
