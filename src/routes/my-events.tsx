@@ -15,10 +15,12 @@ import FilterBox from "@/components/events/EventFilter";
 import EmptyState from "@/components/events/EmptyState";
 import EventGrid from "@/components/events/EventGrid";
 import { useAuth } from "@/context/AuthContext";
+import { buildFilterParams } from "@/lib/build-filter-params";
 import type {
   PaginatedResponse,
   PaginationMeta,
 } from "@/types/pagination.type";
+import type { EventFilterParams } from "@/types/event-filter.type";
 
 export const Route = createFileRoute("/my-events")({
   component: MyEventsPage,
@@ -53,6 +55,9 @@ function MyEventsPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [visibility, setVisibility] = useState("all");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
   const [showFilters, setShowFilters] = useState(true);
 
   useEffect(() => {
@@ -61,13 +66,31 @@ function MyEventsPage() {
     }
   }, [authLoading, user, navigate]);
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [visibility, selectedTags, dateFrom, dateTo]);
+
   useEffect(() => {
     const fetchMyEvents = async () => {
       if (!user?.id) return;
       setIsLoading(true);
       try {
+        const filters: EventFilterParams = {
+          event_type:
+            visibility === "all"
+              ? undefined
+              : (visibility as "public" | "private"),
+          tags: selectedTags.length > 0 ? selectedTags : undefined,
+          date_from: dateFrom,
+          date_to: dateTo,
+        };
+        const filterParams = buildFilterParams(filters);
+        filterParams.append("page", String(page));
+        filterParams.append("limit", "6");
+
         const res = await axios.get<PaginatedResponse<any>>(
-          `${import.meta.env.VITE_BACKEND_URL}/events/user/${user.id}?page=${page}&limit=6`,
+          `${import.meta.env.VITE_BACKEND_URL}/events/user/${user.id}?${filterParams.toString()}`,
           {
             withCredentials: true,
           }
@@ -104,7 +127,7 @@ function MyEventsPage() {
     };
 
     fetchMyEvents();
-  }, [page, user?.id]);
+  }, [page, user?.id, visibility, selectedTags, dateFrom, dateTo]);
 
   if (authLoading) {
     return (
@@ -138,7 +161,16 @@ function MyEventsPage() {
           setShowFilters={setShowFilters}
         />
         {showFilters && (
-          <FilterBox visibility={visibility} setVisibility={setVisibility} />
+          <FilterBox
+            visibility={visibility}
+            setVisibility={setVisibility}
+            selectedTags={selectedTags}
+            setSelectedTags={setSelectedTags}
+            dateFrom={dateFrom}
+            setDateFrom={setDateFrom}
+            dateTo={dateTo}
+            setDateTo={setDateTo}
+          />
         )}
       </div>
 

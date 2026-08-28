@@ -1,5 +1,6 @@
-import { CalendarIcon, Tag } from "lucide-react";
+import { CalendarIcon, Tag, X } from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Calendar } from "@/components/ui/calendar";
@@ -9,11 +10,46 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 
-function FilterBox({ visibility, setVisibility }: any) {
-  const [dateFrom, setDateFrom] = useState<Date>();
-  const [dateTo, setDateTo] = useState<Date>();
+interface FilterBoxProps {
+  visibility: string;
+  setVisibility: (val: string) => void;
+  selectedTags: string[];
+  setSelectedTags: (tags: string[]) => void;
+  dateFrom: Date | undefined;
+  setDateFrom: (date: Date | undefined) => void;
+  dateTo: Date | undefined;
+  setDateTo: (date: Date | undefined) => void;
+}
+
+function FilterBox({
+  visibility,
+  setVisibility,
+  selectedTags,
+  setSelectedTags,
+  dateFrom,
+  setDateFrom,
+  dateTo,
+  setDateTo,
+}: FilterBoxProps) {
+  const [tagInput, setTagInput] = useState("");
+
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && tagInput.trim()) {
+      e.preventDefault();
+      const newTag = tagInput.trim().toLowerCase();
+      if (!selectedTags.includes(newTag)) {
+        setSelectedTags([...selectedTags, newTag]);
+      }
+      setTagInput("");
+    }
+  };
+
+  const handleRemoveTag = (tag: string) => {
+    setSelectedTags(selectedTags.filter((t) => t !== tag));
+  };
 
   return (
     <div className="flex flex-col gap-5 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm md:px-6">
@@ -50,24 +86,30 @@ function FilterBox({ visibility, setVisibility }: any) {
       </div>
 
       {/* Tags */}
-      <div className="flex items-center gap-4">
-        <div className="flex w-[90px] shrink-0 items-center gap-1.5 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+      <div className="flex items-start gap-4">
+        <div className="flex w-[90px] shrink-0 items-center gap-1.5 pt-1.5 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
           <Tag className="h-3.5 w-3.5" />
           <span>Tags</span>
         </div>
-        <div className="flex gap-2">
-          <Badge
-            variant="secondary"
-            className="rounded-full border-none bg-slate-100/80 px-4 py-0.5 text-xs font-medium text-slate-600 hover:bg-slate-200"
-          >
-            new
-          </Badge>
-          <Badge
-            variant="secondary"
-            className="rounded-full border-none bg-slate-100/80 px-4 py-0.5 text-xs font-medium text-slate-600 hover:bg-slate-200"
-          >
-            test
-          </Badge>
+        <div className="flex flex-1 flex-wrap items-center gap-2">
+          {selectedTags.map((tag) => (
+            <Badge
+              key={tag}
+              variant="secondary"
+              className="cursor-pointer rounded-full border-none bg-[#1a73e8]/10 px-3 py-0.5 text-xs font-medium text-[#1a73e8] hover:bg-[#1a73e8]/20"
+              onClick={() => handleRemoveTag(tag)}
+            >
+              {tag}
+              <X className="ml-1 h-3 w-3" />
+            </Badge>
+          ))}
+          <Input
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={handleAddTag}
+            placeholder="Type a tag and press Enter"
+            className="h-7 w-[180px] rounded-lg border-slate-200 bg-white px-3 text-xs shadow-sm placeholder:text-slate-400 focus-visible:ring-1 focus-visible:ring-[#1a73e8]"
+          />
         </div>
       </div>
 
@@ -81,15 +123,41 @@ function FilterBox({ visibility, setVisibility }: any) {
         <div className="flex flex-wrap items-center gap-2">
           <DatePicker
             value={dateFrom}
-            onChange={setDateFrom}
+            onChange={(date: Date | undefined) => {
+              if (date && dateTo && date > dateTo) {
+                toast.error("Start date cannot be later than end date");
+                return;
+              }
+              setDateFrom(date);
+            }}
             placeholder="mm/dd/yyyy"
           />
           <span className="mx-1 text-sm text-slate-400">to</span>
           <DatePicker
             value={dateTo}
-            onChange={setDateTo}
+            onChange={(date: Date | undefined) => {
+              if (date && dateFrom && date < dateFrom) {
+                toast.error("End date cannot be earlier than start date");
+                return;
+              }
+              setDateTo(date);
+            }}
             placeholder="mm/dd/yyyy"
           />
+          {(dateFrom || dateTo) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setDateFrom(undefined);
+                setDateTo(undefined);
+              }}
+              className="h-7 px-2 text-xs text-slate-400 hover:text-slate-600"
+            >
+              <X className="mr-1 h-3 w-3" />
+              Clear
+            </Button>
+          )}
         </div>
       </div>
     </div>
