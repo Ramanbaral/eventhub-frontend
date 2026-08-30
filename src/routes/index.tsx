@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { format, formatDistanceToNow } from "date-fns";
 import {
   Pagination,
@@ -13,6 +14,7 @@ import {
 import SearchBar from "@/components/events/SearchBar";
 import FilterBox from "@/components/events/EventFilter";
 import EmptyState from "@/components/events/EmptyState";
+import EventError from "@/components/events/EventError";
 import EventGrid from "@/components/events/EventGrid";
 import { buildFilterParams } from "@/lib/build-filter-params";
 import type {
@@ -48,6 +50,7 @@ function IndexPage() {
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
@@ -70,6 +73,7 @@ function IndexPage() {
   useEffect(() => {
     const fetchUpcomingEvents = async () => {
       setIsLoading(true);
+      setError(null);
       try {
         const filters: EventFilterParams = {
           search: activeSearch || undefined,
@@ -117,6 +121,12 @@ function IndexPage() {
         setPagination(res.data.pagination);
       } catch (err) {
         console.error(err);
+        const message =
+          axios.isAxiosError(err) && err.response?.data?.message
+            ? err.response.data.message
+            : "Failed to load events. Please try again.";
+        setError(message);
+        toast.error(message);
       } finally {
         setIsLoading(false);
       }
@@ -167,6 +177,8 @@ function IndexPage() {
             <EventCardSkeleton key={i} />
           ))}
         </div>
+      ) : error ? (
+        <EventError message={error} />
       ) : events.length === 0 ? (
         <EmptyState
           title="No upcoming events"

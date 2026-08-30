@@ -22,6 +22,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import toast from "react-hot-toast";
 import DeleteEventModal from "@/components/events/DeleteEventModal";
 import EditEventModal from "@/components/events/EditEventModal";
+import EventError from "@/components/events/EventError";
 
 export interface Event {
   id: number;
@@ -48,9 +49,11 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<Event | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchEventData = async () => {
+      setError(null);
       try {
         setIsLoading(true);
         const [eventRes, tagsRes] = await Promise.all([
@@ -71,6 +74,12 @@ export default function EventDetailPage() {
           navigate({ to: "/404" as any });
         } else {
           console.error("Failed to fetch event data:", error);
+          const message =
+            axios.isAxiosError(error) && error.response?.data?.message
+              ? error.response.data.message
+              : "Failed to load event details. Please try again.";
+          setError(message);
+          toast.error(message);
         }
       } finally {
         setIsLoading(false);
@@ -126,6 +135,10 @@ export default function EventDetailPage() {
         </div>
       </div>
     );
+  }
+
+  if (error) {
+    return <EventError title="Failed to load event" message={error} fullPage />;
   }
 
   if (!event) return null;

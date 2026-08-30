@@ -176,7 +176,6 @@ function DatePicker({ value, onChange, placeholder }: any) {
             <CalendarIcon className="h-4 w-4" />
             {value ? format(value, "MM/dd/yyyy") : placeholder}
           </div>
-          <CalendarIcon className="h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">

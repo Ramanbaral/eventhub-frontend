@@ -32,7 +32,7 @@ export default function Navbar() {
             <Calendar className="h-5 w-5" />
           </div>
           <span className="text-foreground text-xl font-extrabold tracking-tight">
-            <Link to="/">Eventide</Link>
+            <Link to="/">Eventhub</Link>
           </span>
         </div>
 
