@@ -2,6 +2,8 @@
 
 A event management application that lets users browse, create, filter, and manage events. Built with **React**, **TypeScript**, **TanStack Router**, and **Tailwind CSS v4**, running on **Vite**.
 
+**Live Website:** [https://eventhub.ramanbaral.me/](https://eventhub.ramanbaral.me/)
+
 ---
 
 ## Table of Contents
