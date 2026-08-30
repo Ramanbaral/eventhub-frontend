@@ -39,30 +39,27 @@ export default function Navbar() {
         <div className="hidden items-center gap-1 md:flex">
           <Link
             to="/upcoming"
-            className="text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-4 py-2 text-sm font-medium transition-all duration-200"
+            className="text-foreground hover:bg-primary/50 hover:text-primary rounded-md px-4 py-2 text-sm font-medium transition-all duration-200"
             activeProps={{
-              className:
-                "bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700",
+              className: "bg-blue-400 text-primary",
             }}
           >
             Upcoming
           </Link>
           <Link
             to="/past"
-            className="text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-4 py-2 text-sm font-medium transition-all duration-200"
+            className="text-foreground hover:bg-primary/50 hover:text-primary rounded-md px-4 py-2 text-sm font-medium transition-all duration-200"
             activeProps={{
-              className:
-                "bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700",
+              className: "bg-blue-400 text-primary",
             }}
           >
             Past Events
           </Link>
           <Link
             to="/my-events"
-            className="text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-4 py-2 text-sm font-medium transition-all duration-200"
+            className="text-foreground hover:bg-primary/50 hover:text-primary rounded-md px-4 py-2 text-sm font-medium transition-all duration-200"
             activeProps={{
-              className:
-                "bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700",
+              className: "bg-blue-400 text-primary",
             }}
           >
             My Events

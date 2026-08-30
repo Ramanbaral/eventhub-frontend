@@ -188,7 +188,7 @@ function UpcomingEventsPage() {
         <div className="space-y-8">
           <EventGrid events={events} />
 
-          <Pagination className="justify-end">
+          <Pagination className="justify-center">
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
