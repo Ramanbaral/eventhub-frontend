@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -127,12 +127,12 @@ export function LoginForm() {
           </div>
           <p className="text-muted-foreground text-center text-sm">
             Don&apos;t have an account?{" "}
-            <a
+            <Link
               className="font-medium text-blue-500 underline-offset-4 hover:underline"
-              href="/register"
+              to="/register"
             >
               Register here
-            </a>
+            </Link>
           </p>
         </CardFooter>
       </Card>
