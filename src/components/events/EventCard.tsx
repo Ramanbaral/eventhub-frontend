@@ -63,6 +63,7 @@ export default function EventCard({
       });
       toast.success("Event deleted successfully");
       router.invalidate();
+      window.dispatchEvent(new Event("event-updated"));
     } catch (error) {
       console.error(error);
       toast.error("Failed to delete event");

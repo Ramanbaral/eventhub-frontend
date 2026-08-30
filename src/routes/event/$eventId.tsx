@@ -50,6 +50,13 @@ export default function EventDetailPage() {
   const [tags, setTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const handleRefresh = () => setRefreshKey((prev) => prev + 1);
+    window.addEventListener("event-updated", handleRefresh);
+    return () => window.removeEventListener("event-updated", handleRefresh);
+  }, []);
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -88,7 +95,7 @@ export default function EventDetailPage() {
     if (eventId) {
       fetchEventData();
     }
-  }, [eventId, navigate]);
+  }, [eventId, navigate, refreshKey]);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -109,6 +116,7 @@ export default function EventDetailPage() {
         }
       );
       toast.success("Event deleted successfully");
+      window.dispatchEvent(new Event("event-updated"));
       navigate({ to: "/" });
     } catch (error) {
       console.error(error);
@@ -200,14 +208,14 @@ export default function EventDetailPage() {
 
         <div className="flex flex-col items-start justify-between gap-4 py-2 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
-            <Button
+            {/* <Button
               variant="outline"
               className="border-border/10 rounded-full px-5 shadow-sm"
               onClick={onShare}
             >
               <Share className="mr-2 h-4 w-4 text-slate-500" />
               Share
-            </Button>
+            </Button> */}
             {isCreator && (
               <>
                 <Button
@@ -243,7 +251,7 @@ export default function EventDetailPage() {
           <div className="space-y-6 lg:col-span-2">
             <Card className="rounded-2xl border-slate-200/60 shadow-sm">
               <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-[11px] font-semibold tracking-widest text-slate-400 uppercase">
+                <CardTitle className="text-foreground flex items-center gap-2 text-[11px] font-semibold tracking-widest uppercase">
                   <Calendar className="h-3.5 w-3.5" />
                   Date & Time
                 </CardTitle>
@@ -274,7 +282,7 @@ export default function EventDetailPage() {
 
             <Card className="rounded-2xl border-slate-200/60 shadow-sm">
               <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-[11px] font-semibold tracking-widest text-slate-400 uppercase">
+                <CardTitle className="text-foreground flex items-center gap-2 text-[11px] font-semibold tracking-widest uppercase">
                   <Tag className="h-3.5 w-3.5" />
                   About this event
                 </CardTitle>
@@ -290,7 +298,7 @@ export default function EventDetailPage() {
           <div className="space-y-6">
             <Card className="rounded-2xl border-slate-200/60 shadow-sm">
               <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-[11px] font-semibold tracking-widest text-slate-400 uppercase">
+                <CardTitle className="text-foreground flex items-center gap-2 text-[11px] font-semibold tracking-widest uppercase">
                   <MapPin className="h-3.5 w-3.5" />
                   Location
                 </CardTitle>
@@ -310,7 +318,7 @@ export default function EventDetailPage() {
             {tags && tags.length > 0 && (
               <Card className="rounded-2xl border-slate-200/60 shadow-sm">
                 <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2 text-[11px] font-semibold tracking-widest text-slate-400 uppercase">
+                  <CardTitle className="text-foreground flex items-center gap-2 text-[11px] font-semibold tracking-widest uppercase">
                     <Tag className="h-3.5 w-3.5" />
                     Tags
                   </CardTitle>

@@ -63,6 +63,13 @@ function MyEventsPage() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [showFilters, setShowFilters] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const handleRefresh = () => setRefreshKey((prev) => prev + 1);
+    window.addEventListener("event-updated", handleRefresh);
+    return () => window.removeEventListener("event-updated", handleRefresh);
+  }, []);
 
   const handleSearch = () => {
     setActiveSearch(searchQuery);
@@ -152,6 +159,7 @@ function MyEventsPage() {
     dateFrom,
     dateTo,
     activeSearch,
+    refreshKey,
   ]);
 
   if (authLoading) {

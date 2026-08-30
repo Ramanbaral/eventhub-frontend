@@ -59,6 +59,13 @@ function PastEventsPage() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [showFilters, setShowFilters] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const handleRefresh = () => setRefreshKey((prev) => prev + 1);
+    window.addEventListener("event-updated", handleRefresh);
+    return () => window.removeEventListener("event-updated", handleRefresh);
+  }, []);
 
   const handleSearch = () => {
     setActiveSearch(searchQuery);
@@ -132,7 +139,15 @@ function PastEventsPage() {
       }
     };
     fetchPastEvents();
-  }, [page, visibility, selectedTags, dateFrom, dateTo, activeSearch]);
+  }, [
+    page,
+    visibility,
+    selectedTags,
+    dateFrom,
+    dateTo,
+    activeSearch,
+    refreshKey,
+  ]);
 
   return (
     <div className="container mx-auto max-w-6xl space-y-8 p-4 font-sans md:p-8">

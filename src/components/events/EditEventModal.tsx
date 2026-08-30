@@ -126,6 +126,7 @@ export default function EditEventModal({ open, onOpenChange, eventData }: any) {
       toast.success("Event updated successfully!");
       onOpenChange(false);
       router.invalidate();
+      window.dispatchEvent(new Event("event-updated"));
     } catch (error) {
       console.error(error);
       toast.error("Failed to update event");

@@ -114,6 +114,7 @@ function CreateEvent() {
 
       toast.success("Event created successfully!");
       form.reset();
+      window.dispatchEvent(new Event("event-updated"));
       navigate({ to: "/" });
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
