@@ -1,73 +1,123 @@
-# React + TypeScript + Vite
+# EventHub – Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A event management application that lets users browse, create, filter, and manage events. Built with **React**, **TypeScript**, **TanStack Router**, and **Tailwind CSS v4**, running on **Vite**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Table of Contents
 
-## React Compiler
+- [Setup Instructions](#setup-instructions)
+- [Project Structure](#project-structure)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Setup Instructions
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
+| Tool    | Version |
+| ------- | ------- |
+| Node.js | ≥ 18.x  |
+| pnpm    | ≥ 8.x   |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+> **Note:** This project uses **pnpm** as the package manager (a `pnpm-lock.yaml` is present). If you prefer npm or yarn, delete the lockfile first, but pnpm is recommended for consistency.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Ramanbaral/eventhub-frontend.git
+cd eventhub_frontend
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Install Dependencies
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+```bash
+pnpm install
+```
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+### 3. Configure Environment Variables
+
+Create a `.env` file in the project root (or copy the existing one) with the following variable:
+
+```env
+VITE_BACKEND_URL = "http://localhost:3000/api/v1"
+```
+
+Adjust the URL to point to wherever the EventHub backend API is running.
+
+### 4. Start the Development Server
+
+```bash
+pnpm dev
+```
+
+The app will be available at **http://localhost:5173** (default Vite port).
+
+### 5. Build for Production (Optional)
+
+```bash
+pnpm build
+```
+
+The output will be in the `dist/` directory, ready to be served by any static file server.
+
+### 6. Preview the Production Build
+
+```bash
+pnpm preview
+```
+
+### Available Scripts
+
+| Command             | Description                              |
+| ------------------- | ---------------------------------------- |
+| `pnpm dev`          | Start the Vite dev server with HMR       |
+| `pnpm build`        | Type-check and build for production      |
+| `pnpm preview`      | Preview the production build locally     |
+| `pnpm lint`         | Run ESLint across the project            |
+| `pnpm format`       | Format all files with Prettier           |
+| `pnpm format:check` | Check formatting without writing changes |
+
+---
+
+## Project Structure
+
+```
+eventhub_frontend/
+├── public/                  # Static assets
+├── src/
+│   ├── assets/              # Images, fonts, etc.
+│   ├── components/
+│   │   ├── auth/            # LoginForm, RegisterForm
+│   │   ├── events/          # EventCard, EventFilter, EventGrid,
+│   │   │                    # SearchBar, EditEventModal, DeleteEventModal,
+│   │   │                    # EmptyState, EventError
+│   │   ├── layout/          # Navbar
+│   │   └── ui/              # shadcn/ui primitives (Button, Card, Dialog, etc.)
+│   ├── context/             # AuthContext (React Context for auth state)
+│   ├── lib/                 # Utility functions (buildFilterParams, cn helper)
+│   ├── routes/              # TanStack Router file-based routes
+│   │   ├── __root.tsx       # Root layout (Navbar + Outlet)
+│   │   ├── index.tsx        # Home – all events listing
+│   │   ├── upcoming.tsx     # Upcoming events listing
+│   │   ├── past.tsx         # Past events listing
+│   │   ├── my-events.tsx    # Authenticated user's events
+│   │   ├── _auth/
+│   │   │   ├── login.tsx    # Login page
+│   │   │   └── register.tsx # Registration page
+│   │   └── event/
+│   │       ├── create.tsx   # Event creation form
+│   │       └── $eventId.tsx # Event detail page (dynamic route)
+│   ├── types/               # TypeScript type definitions
+│   ├── main.tsx             # App entry point
+│   ├── routeTree.gen.ts     # Auto-generated route tree (do not edit)
+│   └── index.css            # Global styles + Tailwind directives
+├── .env                     # Environment variables
+├── components.json          # shadcn/ui configuration
+├── vite.config.ts           # Vite + TanStack Router + Tailwind plugin config
+├── tsconfig.app.json        # TypeScript config (app source)
+├── tsconfig.node.json       # TypeScript config (Node tooling)
+├── eslint.config.js         # ESLint configuration
+├── .prettierrc              # Prettier configuration
+└── package.json             # Dependencies and scripts
 ```
