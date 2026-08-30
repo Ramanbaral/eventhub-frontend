@@ -21,7 +21,6 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
   MapPin,
-  Image as ImageIcon,
   Calendar as CalendarIcon,
   Clock,
   Lock,

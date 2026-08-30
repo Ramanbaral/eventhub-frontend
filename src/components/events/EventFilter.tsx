@@ -60,6 +60,7 @@ function FilterBox({
         </span>
         <ToggleGroup
           type="single"
+          // @ts-expect-error
           value={visibility}
           onValueChange={(val) => val[0] && setVisibility(val[0])}
           className="justify-start gap-2"
@@ -167,7 +168,7 @@ function FilterBox({
 function DatePicker({ value, onChange, placeholder }: any) {
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
         <Button
           variant="outline"
           className={`h-9 w-[165px] justify-between rounded-lg border-slate-200 bg-white px-3 text-left font-normal shadow-sm hover:bg-slate-50 ${!value ? "text-slate-400" : "text-slate-900"}`}
@@ -183,7 +184,7 @@ function DatePicker({ value, onChange, placeholder }: any) {
           mode="single"
           selected={value}
           onSelect={onChange}
-          initialFocus
+          autoFocus
         />
       </PopoverContent>
     </Popover>

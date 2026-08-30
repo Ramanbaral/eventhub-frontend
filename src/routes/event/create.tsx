@@ -3,7 +3,6 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Calendar,
-  Clock,
   Globe,
   Lock,
   MapPin,

@@ -95,7 +95,7 @@ export default function Navbar() {
               </Button>
 
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+                <DropdownMenuTrigger>
                   <Button
                     variant="ghost"
                     className="relative h-10 w-10 rounded-full p-0 transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -110,7 +110,6 @@ export default function Navbar() {
                 <DropdownMenuContent
                   className="w-56 rounded-xl p-2 shadow-lg"
                   align="end"
-                  forceMount
                 >
                   <DropdownMenuGroup>
                     <DropdownMenuLabel className="font-normal">

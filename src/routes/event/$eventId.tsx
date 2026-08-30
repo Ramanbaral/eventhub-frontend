@@ -3,7 +3,6 @@ import {
   Globe,
   Calendar,
   Clock,
-  Share,
   Pencil,
   Trash2,
   User,
@@ -101,9 +100,6 @@ export default function EventDetailPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const onBack = () => navigate({ to: "/" });
-  const onShare = () => {
-    /* implement share */
-  };
   const onEdit = () => setIsEditModalOpen(true);
   const onDelete = () => setIsDeleteModalOpen(true);
 
