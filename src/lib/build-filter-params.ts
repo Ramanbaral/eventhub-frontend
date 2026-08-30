@@ -12,7 +12,7 @@ export function buildFilterParams(filters: EventFilterParams): URLSearchParams {
     params.append("search", filters.search);
   }
 
-  if (filters.event_type) {
+  if (filters.event_type && filters.event_type !== ("all" as any)) {
     params.append("event_type", filters.event_type);
   }
 

@@ -61,7 +61,7 @@ function FilterBox({
         <ToggleGroup
           type="single"
           value={visibility}
-          onValueChange={(val) => val && setVisibility(val)}
+          onValueChange={(val) => val[0] && setVisibility(val[0])}
           className="justify-start gap-2"
         >
           <ToggleGroupItem
